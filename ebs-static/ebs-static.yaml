@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: PersistenteVolume
+metadata:
+  name: ebs-static-pv
+spec:
+  storageClassName: ""
+  accessModes:
+  - ReadWriteOnce 
+  awsElasticBlockStore:
+    fstype: ext4
+    volumeID: vol-0f3b31a1cfca44263
+  capacity:
+    storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-static-pvc
+spec:
+  storageClassName: ""
+  acessModes:
+  - ReadWriteOnce 
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: web
+      project: roboshop
+  template:
+    metadata:
+      labels: 
+        app: web
+        project: roboshop
+    spec:
+      volumes:
+      - name: nginx-volume
+        PersistentVolumeClaim:
+          claimName: ebs-static-pvc
+  
+      containers:
+      - name: web
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-volume
+          mountPath: /usr/share/nginx/html
+
+        
