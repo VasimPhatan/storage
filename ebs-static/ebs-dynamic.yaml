@@ -15,7 +15,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: ebs-dynamic-pvc
 spec:
-  storageClass: "ebs-sc"
+  storageClassName: "ebs-sc"
   accessModes:
     - ReadWriteOnce
   resources:
