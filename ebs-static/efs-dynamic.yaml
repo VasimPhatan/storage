@@ -1,0 +1,62 @@
+apiVersion: v1   #this is pv 
+kind: PersistentVolume
+metadata:
+  name: efs-static-pv
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain  #ensures the filesystem is not deleted when PVC is gone
+  csi:
+    driver: efs.csi.aws.com #CSI driver talks to AWS and mounts the correct EFS filesystem
+    volumeHandle: fs-0066fd301649ac090 #give here the efs volume id 
+  
+---
+apiVersion: v1  #this is pvc
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-static-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels: # these labels belong to deployment
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # these labels should match with pod
+      app: nginx
+      project: roboshop
+      component: frontend
+  template: # this is the pod definition
+    metadata:
+      labels:
+        app: nginx
+        project: roboshop
+        component: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: nginx-html
+      volumes:
+      - name: nginx-html
+        persistentVolumeClaim: # this is the PVC
+          claimName: efs-static-pvc

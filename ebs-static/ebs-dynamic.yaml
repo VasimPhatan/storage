@@ -2,7 +2,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: ebs-sc
-provisioner: ebs.csi.aws.com
+provisioner: ebs.csi.aws.com     #the storage class with connect to installed driver and create the storage
 volumeBindingMode: WaitForFirstConsumer
 parameters:
   type: gp2
