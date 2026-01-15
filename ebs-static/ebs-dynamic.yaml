@@ -1,0 +1,56 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com  #the storage class with connect to installed driver and create the storage
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  csi.storage.k8s.io/fstype: xfs  
+  type: io1
+  iopsPerGB: "50"
+  encrypted: "true" 
+---
+apiVersion: av1 
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-dynamic-pvc
+spec:
+  storageClass: "ebs-sc"
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: web
+      project: roboshop
+  template:
+    metadata:
+      labels:
+        app: web
+        project: roboshop
+
+    spec:
+      volumes:  
+      - name: nginx-volume
+        persistentVolumeClaim:
+          claimName: ebs-dynamic-pvc 
+      containers:
+      - name: web
+        image: nginx
+        ports: 
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-volume
+          mountPath: /usr/share/nginx/html
+          
+      
