@@ -8,7 +8,7 @@ spec:
     - ReadWriteOnce
   awsElasticBlockStore:
     fsType: ext4
-    volumeID: vol-09ef2702631454ce2
+    volumeID: vol-06203667cb6a95a92
   capacity:
     storage: 10Gi
 ---
