@@ -9,7 +9,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   csi: 
    driver: efs.csi.aws.com
-   voluemHandle: fs-0bd3e30fe7cbe9dad
+   volumeHandle: fs-0bd3e30fe7cbe9dad
   capacity:
     storage: 10Gi
   volumeMode: Filesystem
