@@ -3,7 +3,7 @@ kind: StorageClass
 metadata: 
   name: ebs-sc 
 provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstCustomer
+volumeBindingMode: WaitForFirstCunsumer
 parameters:
   type: gp2
   fsType: ext4
@@ -48,4 +48,4 @@ spec:
         volumeMounts:
         - name: nginx-volume
           mountPath: /usr/share/nginx/html
-          
+
