@@ -1,55 +1,50 @@
-apiVersion: v1   #this is pv 
-kind: PersistentVolume
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
 metadata:
-  name: efs-static-pv
-spec:
-  storageClassName: ""
-  accessModes:
-    - ReadWriteOnce
-  capacity:
-    storage: 5Gi
-  volumeMode: Filesystem
-  persistentVolumeReclaimPolicy: Retain  #ensures the filesystem is not deleted when PVC is gone
-  csi:
-    driver: efs.csi.aws.com #CSI driver talks to AWS and mounts the correct EFS filesystem
-    volumeHandle: fs-0066fd301649ac090 #give here the efs volume id 
-  
+  name: efs-dynamic-roboshop-sc  #a single file system can be used by entire company . we will create storage class for roboshop project 
+provisioner: efs.csi.aws.com  
+parameters:
+  provisioningMode: #Use EFS Access Points for dynamic provisioning.This allows each PVC to get a separate directory and permissions inside the EFS filesystem.
+  fileSystemId: fs-092d5cbc6e298fe0d #this is efs file system id
+  directoryPerms: "700" #Owner has full access, others none.
+  gidRangeStart: "1000" # optional
+  gidRangeEnd: "2000" # optional
+  basePath: "/roboshop" # All PVC directories are created under this folder in EFS. Keeps your project organized and separate from other apps.
 ---
-apiVersion: v1  #this is pvc
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: efs-static-pvc
+  name: efs-dynamic-pvc
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: ""
+  storageClassName: "efs-dynamic-roboshop-sc"
   resources:
     requests:
       storage: 5Gi
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: nginx-deployment1
   labels: # these labels belong to deployment
-    app: nginx
+    app: nginx1
 spec:
   replicas: 1
   selector:
     matchLabels: # these labels should match with pod
-      app: nginx
-      project: roboshop
-      component: frontend
+      app: nginx1
+      project: roboshop1
+      component: frontend1
   template: # this is the pod definition
     metadata:
       labels:
-        app: nginx
-        project: roboshop
-        component: frontend
+        app: nginx1
+        project: roboshop1
+        component: frontend1
     spec:
       containers:
-      - name: nginx
+      - name: nginx1
         image: nginx
         ports:
         - containerPort: 80
@@ -59,4 +54,4 @@ spec:
       volumes:
       - name: nginx-html
         persistentVolumeClaim: # this is the PVC
-          claimName: efs-static-pvc
+          claimName: efs-dynamic-pvc
