@@ -5,7 +5,7 @@ metadata:
 provisioner: efs.csi.aws.com  
 parameters:
   provisioningMode: #Use EFS Access Points for dynamic provisioning.This allows each PVC to get a separate directory and permissions inside the EFS filesystem.
-  fileSystemId: fs-092d5cbc6e298fe0d #this is efs file system id
+  fileSystemId: fs-08b480401801411f0 #this is efs file system id
   directoryPerms: "700" #Owner has full access, others none.
   gidRangeStart: "1000" # optional
   gidRangeEnd: "2000" # optional
